@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
@@ -8,7 +8,7 @@ using UniRx;
 namespace radiants.SimpleSoundSuite
 {
 
-	public class SoundObjectPool
+	internal class SoundObjectPool
 	{
 		private Transform PoolParent { get; }
 
@@ -66,7 +66,7 @@ namespace radiants.SimpleSoundSuite
 			return Pool.Get();
 		}
 
-		public void CheckPolyphonyAndStop(SoundElement element)
+		public void CheckPolyphonyAndStop(SoundElement element, bool checkName)
 		{
 			if (element.Polyphony == 0) return;
 
@@ -74,18 +74,22 @@ namespace radiants.SimpleSoundSuite
 			int nowPlaying = 0;
 			foreach (var active in CurrentActiveObjects)
 			{
-				if (active.Value.NowPlayingSound != element.ID) continue;
+				if(checkName)
+				{
+					if (active.Value.NowPlayingSoundName != element.Name) continue;
+				}
+				else
+				{
+					if (active.Value.NowPlayingSoundID != element.ID) continue;
+				}
 
-				//ˆê”ÔŒÃ‚¢‚à‚Ì‚ğ‹L˜^‚µ‚Ä‚¨‚­
+				//ä¸€ç•ªå¤ã„ã‚‚ã®ã‚’è¨˜éŒ²ã—ã¦ãŠã
 				if (firstKey == -1) firstKey = active.Key;
 				nowPlaying++;
 
-				//Debug.Log("playing " + nowPlaying + ":" + active.Key);
-
 				if (nowPlaying >= element.Polyphony)
 				{
-					//ˆê”ÔŒÃ‚¢‚à‚Ì‚ğ~‚ß‚éB1ŒÂ~‚ß‚ê‚Î‚¢‚¢‚Í‚¸
-					//Debug.Log("Stopped:" + firstKey);
+					//ä¸€ç•ªå¤ã„ã‚‚ã®ã‚’æ­¢ã‚ã‚‹ã€‚1å€‹æ­¢ã‚ã‚Œã°ã„ã„ã¯ãš
 					StopImmediately(firstKey);
 					return;
 				}

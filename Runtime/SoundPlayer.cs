@@ -47,7 +47,21 @@ namespace radiants.SimpleSoundSuite
 			}
 		}
 
+		#region 効果音
 
+		/// <summary>
+		/// IDを指定してサウンドを再生する(効果音用)
+		/// </summary>
+		/// <param name="soundID">SoundElementのID</param>
+		/// <param name="loop">ループ再生</param>
+		/// <param name="outputGroup">出力先のAudioMixerGroup</param>
+		/// <returns>playerID(中断用)</returns>
+		public int Play(long soundID, bool loop = false, AudioMixerGroup outputGroup = null)
+		{
+			var element = GetElement(soundID);
+			if (element == null) return -1;
+			return Play(element, loop, outputGroup, false);
+		}
 
 		/// <summary>
 		/// 名前を指定してサウンドを再生する(効果音用)
@@ -60,14 +74,35 @@ namespace radiants.SimpleSoundSuite
 		{
 			var element = GetElement(soundName);
 			if (element == null) return -1;
+			return Play(element, loop, outputGroup, true);
+		}
+
+		private int Play(SoundElement element, bool loop, AudioMixerGroup outputGroup, bool checkName)
+		{
 			var single = element.GetNext();
 			if (single == null) return -1;
 
-			SoundPool.CheckPolyphonyAndStop(element);
+			SoundPool.CheckPolyphonyAndStop(element, checkName);
 			var audio = SoundPool.Get();
-			_ = audio.Play(single, element.ID, 0f, loop, outputGroup);
+			_ = audio.Play(single, element.ID, element.Name, 0f, loop, outputGroup);
 
 			return audio.GetInstanceID();
+		}
+
+		/// <summary>
+		/// IDを指定してサウンドを再生する(効果音用)
+		/// 音が終了するまでawaitで待機可能
+		/// </summary>
+		/// <param name="soundID">SoundElementのID</param>
+		/// <param name="loop">ループ再生</param>
+		/// <param name="outputGroup">出力先のAudioMixerGroup</param>
+		/// <returns></returns>
+		public UniTask PlayAwaitable(long soundID, bool loop = false, AudioMixerGroup outputGroup = null)
+		{
+			var element = GetElement(soundID);
+			if (element == null) return UniTask.CompletedTask;
+
+			return PlayAwaitable(element, loop, outputGroup, false);
 		}
 
 		/// <summary>
@@ -77,17 +112,23 @@ namespace radiants.SimpleSoundSuite
 		/// <param name="soundName">SoundElementのName</param>
 		/// <param name="loop">ループ再生</param>
 		/// <param name="outputGroup">出力先のAudioMixerGroup</param>
-		/// <returns>playerID(中断用)</returns>
-		public async UniTask PlayAwaitable(string soundName, bool loop = false, AudioMixerGroup outputGroup = null)
+		//todo CancellationToken
+		public UniTask PlayAwaitable(string soundName, bool loop = false, AudioMixerGroup outputGroup = null)
 		{
 			var element = GetElement(soundName);
-			if (element == null) return;
-			var single = element.GetNext();
-			if (single == null) return;
+			if (element == null) return UniTask.CompletedTask;
 
-			SoundPool.CheckPolyphonyAndStop(element);
+			return PlayAwaitable(element, loop, outputGroup, true);
+		}
+
+		private UniTask PlayAwaitable(SoundElement element, bool loop, AudioMixerGroup outputGroup, bool checkName)
+		{
+			var single = element.GetNext();
+			if (single == null) return UniTask.CompletedTask;
+
+			SoundPool.CheckPolyphonyAndStop(element, checkName);
 			var audio = SoundPool.Get();
-			await audio.Play(single, element.ID, 0f, loop, outputGroup);
+			return audio.Play(single, element.ID, element.Name, 0f, loop, outputGroup);
 		}
 
 		/// <summary>
@@ -98,6 +139,10 @@ namespace radiants.SimpleSoundSuite
 		{
 			SoundPool.Stop(playerID);
 		}
+
+		#endregion
+
+		#region BGM
 
 		private AudioMixerGroup MusicMixerGroup = null;
 		private SoundObject CurrentMusicObject = null;
@@ -127,7 +172,7 @@ namespace radiants.SimpleSoundSuite
 
 			if (CurrentMusicObject != null)
 			{
-				if(CurrentMusicObject.NowPlayingSound == element.ID && !forceReplay)
+				if(CurrentMusicObject.NowPlayingSoundName == element.Name && !forceReplay)
 				{
 					return;
 				}
@@ -142,7 +187,7 @@ namespace radiants.SimpleSoundSuite
 			if (single == null) return;
 
 			CurrentMusicObject = MusicPool.Get();
-			_ = CurrentMusicObject.Play(single, element.ID, fadeInSeconds, true, MusicMixerGroup);
+			_ = CurrentMusicObject.Play(single, element.ID, element.Name, fadeInSeconds, true, MusicMixerGroup);
 		}
 		/// <summary>
 		/// 現在流れているBGMを止める
@@ -153,6 +198,8 @@ namespace radiants.SimpleSoundSuite
 			if (CurrentMusicObject == null) return;
 			CurrentMusicObject.Stop(fadeoutSeconds);
 		}
+
+		#endregion
 
 		#region Search AudioElement From Jukeboxes
 
@@ -169,6 +216,24 @@ namespace radiants.SimpleSoundSuite
 			for (int i = 0; i < DefaultJukeboxes.Length; i++)
 			{
 				var element = DefaultJukeboxes[i].GetElementByName(soundName);
+				if (element != null) return element;
+			}
+			return null;
+		}
+
+		private SoundElement GetElement(long soundID)
+		{
+			//Additional優先
+			for (int i = 0; i < AdditionalJukeBoxes.Count; i++)
+			{
+				var element = AdditionalJukeBoxes[i].GetElementByID(soundID);
+				if (element != null) return element;
+			}
+
+			//無かったらDefault
+			for (int i = 0; i < DefaultJukeboxes.Length; i++)
+			{
+				var element = DefaultJukeboxes[i].GetElementByID(soundID);
 				if (element != null) return element;
 			}
 			return null;

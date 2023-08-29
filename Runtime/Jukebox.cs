@@ -11,7 +11,7 @@ namespace radiants.SimpleSoundSuite
 	public class Jukebox : ScriptableObject
 	{
 		[SerializeField]
-		public List<SoundElement> Elements;
+		public List<SoundElement> Elements = new List<SoundElement>();
 
 
 		private Dictionary<string, SoundElement> NameDict = null;

@@ -13,7 +13,7 @@ namespace radiants.SimpleSoundSuite
 {
 
 	[RequireComponent(typeof(AudioSource))]
-	public class SoundObject : MonoBehaviour
+	internal class SoundObject : MonoBehaviour
 	{
 		private AudioSource MySource { get; set; }
 
@@ -22,7 +22,8 @@ namespace radiants.SimpleSoundSuite
 
 		private float ElementVolume { get; set; } = 1.0f;
 
-		public long NowPlayingSound { get; private set; }
+		public long NowPlayingSoundID { get; private set; }
+		public string NowPlayingSoundName { get; private set; }
 
 		//instanceIDはマイナス値なので、逆転させてプラスにしたものをPlayerIDとする
 		public int PlayerID { get { return -GetInstanceID(); } }
@@ -33,13 +34,15 @@ namespace radiants.SimpleSoundSuite
 			MySource.playOnAwake = false;
 		}
 
-		public async UniTask Play(SoundSingleElement element, long id, float fadeInSeconds = 0f, bool loop = false, AudioMixerGroup output = null)
+		public async UniTask Play(SoundSingleElement element, long id, string name,
+			float fadeInSeconds = 0f, bool loop = false, AudioMixerGroup output = null)
 		{
 			MySource.loop = loop;
 			MySource.clip = element.Clip;
 			MySource.outputAudioMixerGroup = output;
 			ElementVolume = element.Volume;
-			NowPlayingSound = id;
+			NowPlayingSoundID = id;
+			NowPlayingSoundName = name;
 
 			if (element.ChangePan)
 				MySource.panStereo = UnityEngine.Random.Range(element.PanRange.x, element.PanRange.y);
