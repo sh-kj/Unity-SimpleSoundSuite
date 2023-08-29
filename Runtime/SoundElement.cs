@@ -20,6 +20,9 @@ namespace radiants.SimpleSoundSuite
 
 		public long ID = 0;
 
+		//同時発音数 0:無制限
+		public int Polyphony = 0;
+
 		public List<SoundSingleElement> SingleElements = new List<SoundSingleElement>();
 
 		public ElementOrder Order = ElementOrder.RandomNotRepeat;

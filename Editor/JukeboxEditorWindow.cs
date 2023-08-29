@@ -6,12 +6,12 @@ using UnityEditor;
 
 namespace radiants.SimpleSoundSuite
 {
-	public class JukeboxEditor : EditorWindow
+	public class JukeboxEditorWindow : EditorWindow
 	{
 		[MenuItem("Window/SimpleSoundSuite/Open Jukebox Editor")]
 		private static void OpenWindow()
 		{
-			var window = GetWindow<JukeboxEditor>();
+			var window = GetWindow<JukeboxEditorWindow>();
 			window.titleContent = new GUIContent("Jukebox Editor");
 		}
 
@@ -33,7 +33,7 @@ namespace radiants.SimpleSoundSuite
 			ScrollPosition = EditorGUILayout.BeginScrollView(ScrollPosition);
 
 
-			EditorGUILayout.LabelField("Jukebox Editor");
+			EditorGUILayout.LabelField("Sound Elements");
 
 			List<System.Action> OnChangedActions = new List<System.Action>();
 			for (int i = 0; i < CurrentTarget.Elements.Count; i++)
@@ -54,7 +54,7 @@ namespace radiants.SimpleSoundSuite
 
 			//D&DでAudioElementを新規追加できる
 			EditorGUILayout.BeginHorizontal();
-			if(GUILayout.Button("+", GUILayout.Height(60f)))
+			if (GUILayout.Button("+", GUILayout.Height(60f), GUILayout.Width(100f)))
 			{
 				Undo.RecordObject(CurrentTarget, "Add Jukebox Element");
 
@@ -105,14 +105,16 @@ namespace radiants.SimpleSoundSuite
 			string tmpName = TargetElement.Name;
 			long tmpID = TargetElement.ID;
 			ElementOrder tmpOrder = TargetElement.Order;
+			int tmpPolyphony = TargetElement.Polyphony;
 
 			EditorGUILayout.BeginHorizontal();
 			EditorGUILayout.BeginVertical();
 
 			tmpName = EditorGUILayout.TextField("Name", tmpName);
 			tmpID = EditorGUILayout.LongField("ID", tmpID);
+			tmpPolyphony = EditorGUILayout.IntField(new GUIContent("Polyphony", "同時発音数 0:無制限"), tmpPolyphony);
 
-			tmpOrder = (ElementOrder)EditorGUILayout.EnumPopup("Order", tmpOrder);
+			tmpOrder = (ElementOrder)EditorGUILayout.EnumPopup(new GUIContent("Order", "Clipの抽選方式"), tmpOrder);
 
 			List<System.Action> changedActions = new List<System.Action>();
 			for (int i = 0; i < TargetElement.SingleElements.Count; i++)
@@ -124,7 +126,7 @@ namespace radiants.SimpleSoundSuite
 
 			//追加ボタン
 			EditorGUILayout.BeginHorizontal();
-			if(GUILayout.Button("+", GUILayout.Height(40f)))
+			if (GUILayout.Button("+", GUILayout.Height(40f), GUILayout.Width(100f)))
 			{
 				Undo.RecordObject(CurrentTarget, "Add Jukebox Clip");
 				TargetElement.SingleElements.Add(new SoundSingleElement());
@@ -159,6 +161,7 @@ namespace radiants.SimpleSoundSuite
 				TargetElement.Name = tmpName;
 				TargetElement.ID = tmpID;
 				TargetElement.Order = tmpOrder;
+				TargetElement.Polyphony = tmpPolyphony;
 				changedActions.ForEach(a => a.Invoke());
 			};
 		}
@@ -180,7 +183,7 @@ namespace radiants.SimpleSoundSuite
 
 			#region Pitch
 			EditorGUILayout.BeginHorizontal();
-			EditorGUILayout.LabelField("Change Pitch", GUILayout.Width(100f));
+			EditorGUILayout.LabelField(new GUIContent("Change Pitch", "ピッチのランダム変更"), GUILayout.Width(100f));
 			tmpChangePitch = EditorGUILayout.Toggle(tmpChangePitch, GUILayout.Width(46f));
 			if(tmpChangePitch)
 			{
@@ -193,7 +196,7 @@ namespace radiants.SimpleSoundSuite
 
 			#region Pan
 			EditorGUILayout.BeginHorizontal();
-			EditorGUILayout.LabelField("Change Pan", GUILayout.Width(100f));
+			EditorGUILayout.LabelField(new GUIContent("Change Pan", "パンのランダム変更"), GUILayout.Width(100f));
 			tmpChangePan = EditorGUILayout.Toggle(tmpChangePan, GUILayout.Width(46f));
 			if(tmpChangePan)
 			{
@@ -225,6 +228,12 @@ namespace radiants.SimpleSoundSuite
 			};
 		}
 
+
+		private static long GenerateRandomLongPositiveNumber()
+		{
+			return (long)Random.Range(0, int.MaxValue) << 32
+				| ((long)Random.Range(0, int.MaxValue));
+		}
 
 		#region Drag and Drop
 
