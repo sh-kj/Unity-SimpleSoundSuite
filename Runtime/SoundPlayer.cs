@@ -9,6 +9,7 @@ using Cysharp.Threading.Tasks;
 
 namespace radiants.SimpleSoundSuite
 {
+	[DefaultExecutionOrder(-1000)]
 	public class SoundPlayer : MonoBehaviour
 	{
 		[SerializeField]
@@ -29,7 +30,7 @@ namespace radiants.SimpleSoundSuite
 			AdditionalJukeBoxes.Add(jukebox);
 		}
 
-		private void Start()
+		private void Awake()
 		{
 			//各Poolを生成
 			GameObject SoundParent = new GameObject("Sounds");
