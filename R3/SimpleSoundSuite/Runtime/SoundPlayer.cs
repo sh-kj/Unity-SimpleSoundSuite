@@ -1,9 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
-using UnityEngine.Pool;
-using UniRx;
 using Cysharp.Threading.Tasks;
 
 
@@ -17,8 +14,6 @@ namespace radiants.SimpleSoundSuite
 
 
 		private List<Jukebox> AdditionalJukeBoxes { get; } = new List<Jukebox>();
-
-		private CompositeDisposable Disposables = new CompositeDisposable();
 
 		private SoundObjectPool SoundPool { get; set; }
 		private SoundObjectPool MusicPool { get; set; }

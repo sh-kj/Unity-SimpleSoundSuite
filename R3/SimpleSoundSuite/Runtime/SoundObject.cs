@@ -1,12 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System;
-using UniRx;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Audio;
 using radiants.ReactiveTween;
-
 using Cysharp.Threading.Tasks;
+using R3;
 
 
 namespace radiants.SimpleSoundSuite
@@ -18,7 +14,7 @@ namespace radiants.SimpleSoundSuite
 		private AudioSource MySource { get; set; }
 
 		private Subject<Unit> OnFinishedSubject = new Subject<Unit>();
-		public IObservable<Unit> OnFinished { get { return OnFinishedSubject; } }
+		public Observable<Unit> OnFinished => OnFinishedSubject;
 
 		private float ElementVolume { get; set; } = 1.0f;
 

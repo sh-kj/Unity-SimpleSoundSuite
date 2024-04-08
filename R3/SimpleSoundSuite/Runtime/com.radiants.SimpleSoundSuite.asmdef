@@ -2,9 +2,9 @@
     "name": "com.radiants.SimpleSoundSuite",
     "rootNamespace": "",
     "references": [
-        "GUID:eeeeb1806d36ffc45a907192a9f1d285",
-        "GUID:560b04d1a97f54a4e82edc0cbbb69285",
-        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:77221876cc6b8244180b96e320b1bcd4",
+        "GUID:b6c144f2357b95e4b9e4b5bf0e566622"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
