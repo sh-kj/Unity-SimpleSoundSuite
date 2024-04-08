@@ -1,0 +1,18 @@
+{
+    "name": "com.radiants.SimpleSoundSuite.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:3763da3fd2a1c774faf7c10dede8a258"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
