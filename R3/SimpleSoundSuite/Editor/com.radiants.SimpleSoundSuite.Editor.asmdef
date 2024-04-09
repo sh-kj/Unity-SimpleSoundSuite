@@ -2,7 +2,7 @@
     "name": "com.radiants.SimpleSoundSuite.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:3763da3fd2a1c774faf7c10dede8a258"
+        "GUID:9c2eb11ba8d70e543933ce4cf4832e59"
     ],
     "includePlatforms": [
         "Editor"

@@ -1,9 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
-using UnityEngine.Pool;
-using UniRx;
 using Cysharp.Threading.Tasks;
 
 
@@ -17,8 +14,6 @@ namespace radiants.SimpleSoundSuite
 
 
 		private List<Jukebox> AdditionalJukeBoxes { get; } = new List<Jukebox>();
-
-		private CompositeDisposable Disposables = new CompositeDisposable();
 
 		private SoundObjectPool SoundPool { get; set; }
 		private SoundObjectPool MusicPool { get; set; }
@@ -158,29 +153,42 @@ namespace radiants.SimpleSoundSuite
 		}
 
 		/// <summary>
+		/// IDを指定してBGMを再生する。
+		/// 既に他のBGMが再生中の場合、fadeInSecondsでクロスフェードして切り替わる。
+		/// 同じBGMが既に再生中の場合は何もしない(forceReplay=trueで最初から再生しなおす)
+		/// </summary>
+		public void PlayMusic(long soundID, float fadeInSeconds = 0f, bool forceReplay = false)
+		{
+			var element = GetElement(soundID);
+			if (element == null) return;
+
+			PlayMusic(element, fadeInSeconds, forceReplay, false);
+		}
+		/// <summary>
 		/// 名前を指定してBGMを再生する。
 		/// 既に他のBGMが再生中の場合、fadeInSecondsでクロスフェードして切り替わる。
 		/// 同じBGMが既に再生中の場合は何もしない(forceReplay=trueで最初から再生しなおす)
 		/// </summary>
-		/// <param name="soundName"></param>
-		/// <param name="fadeInSeconds"></param>
-		/// <param name="forceReplay"></param>
 		public void PlayMusic(string soundName, float fadeInSeconds = 0f, bool forceReplay = false)
 		{
 			var element = GetElement(soundName);
 			if (element == null) return;
 
-
-			if (CurrentMusicObject != null)
+			PlayMusic(element, fadeInSeconds, forceReplay, true);
+		}
+		private void PlayMusic(SoundElement element, float fadeInSeconds, bool forceReplay, bool checkName)
+		{
+			if(CurrentMusicObject != null)
 			{
-				if(CurrentMusicObject.NowPlayingSoundName == element.Name && !forceReplay)
+				//forceReplay==falseで、流そうとしているものが既に再生中の場合は何もしない
+				if(!forceReplay)
 				{
-					return;
+					if (checkName && CurrentMusicObject.NowPlayingSoundName == element.Name) return;
+					if (!checkName && CurrentMusicObject.NowPlayingSoundID == element.ID) return;
 				}
 
-				//既存のBGMを止める
-				float fadeoutSeconds = fadeInSeconds;
-				if (fadeoutSeconds < 0.1f) fadeoutSeconds = 0.1f;
+				//既にBGMが再生中の場合は止める
+				float fadeoutSeconds = Mathf.Max(fadeInSeconds, 0.1f);
 				CurrentMusicObject.Stop(fadeoutSeconds);
 			}
 
@@ -190,6 +198,7 @@ namespace radiants.SimpleSoundSuite
 			CurrentMusicObject = MusicPool.Get();
 			_ = CurrentMusicObject.Play(single, element.ID, element.Name, fadeInSeconds, true, MusicMixerGroup);
 		}
+
 		/// <summary>
 		/// 現在流れているBGMを止める
 		/// </summary>

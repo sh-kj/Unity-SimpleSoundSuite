@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
-using UniRx;
+using R3;
 
 
 namespace radiants.SimpleSoundSuite
