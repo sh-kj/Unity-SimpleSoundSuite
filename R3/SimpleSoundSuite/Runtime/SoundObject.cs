@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.Audio;
-using radiants.ReactiveTween;
 using Cysharp.Threading.Tasks;
 using R3;
 
@@ -54,7 +53,7 @@ namespace radiants.SimpleSoundSuite
 			if (fadeInSeconds > 0f)
 				MySource.volume = 0f;
 			else
-				MySource.volume = 1f;
+				MySource.volume = ElementVolume;
 
 			MySource.Play();
 
